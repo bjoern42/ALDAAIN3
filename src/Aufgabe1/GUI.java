@@ -52,7 +52,7 @@ private DictionaryMenuBar menuBar = null;
 		}
 	}
 	
-	public int getType(){
+	public int getDictType(){
 		return menuBar.getType();
 	}
 	

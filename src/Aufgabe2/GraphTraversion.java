@@ -1,5 +1,6 @@
 package Aufgabe2;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -72,14 +73,13 @@ public class GraphTraversion {
 	 */
 	public static <V> List<V> topologicalSort(DirectedGraph<V> g){
 		List<V> list = new LinkedList<V>();
-		int[] inDegree = new int[g.getNumberOfVertexes()]; // Anz. noch nicht besuchter Vorgänger
+		HashMap<V,Integer> inDegree = new HashMap<V, Integer>(); // Anz. noch nicht besuchter Vorgänger
 		Queue<V> q = new LinkedList<V>();
 		
-		List<V> vertexList = g.getVertexList();
-		for (int i=0;i<vertexList.size();i++) {
-			inDegree[i] = g.getPredecessorVertexList(vertexList.get(i)).size(); //Anzahl der Vorgänger;
-			if (inDegree[i] == 0){
-				q.add(vertexList.get(i));
+		for (V v:g.getVertexList()) {
+			inDegree.put(v, g.getPredecessorVertexList(v).size()); //Anzahl der Vorgänger;
+			if (inDegree.get(v) == 0){
+				q.add(v);
 			}
 		}
 		int k = 0;
@@ -87,11 +87,10 @@ public class GraphTraversion {
 			V v = q.remove();
 			list.add(v);
 			k++;
-			vertexList = g.getSuccessorVertexList(v);
-			for (int i=0;i<vertexList.size();i++ ){
-				inDegree[i] = g.getPredecessorVertexList(vertexList.get(i)).size();
-				if (--inDegree[i] == 0){
-					q.add(g.getAdjacentVertexList(v).get(i));
+			for (V w:g.getSuccessorVertexList(v)){
+				inDegree.put(w,inDegree.get(w)-1);
+				if (inDegree.get(w) == 0){
+					q.add(w);
 				}
 			}
 			

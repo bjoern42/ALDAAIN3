@@ -35,7 +35,7 @@ private boolean evaluate = false;
 	public void read(File file){
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			switch (gui.getType()){
+			switch (gui.getDictType()){
 				case DictionaryMenuBar.TREE_MAP:{
 					dic = new MapDictionary<String, String>(new TreeMap<String, String>());
 					break;
