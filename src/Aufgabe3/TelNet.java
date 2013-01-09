@@ -29,7 +29,7 @@ private TelKnoten p[] = null;
 	 * @param args - wird nicht benutzt.
 	 */
 	public static void main(String[] args) {
-		aufgabe3();
+		aufgabe2();
 	}
 	
 	public static void aufgabe2(){
@@ -48,10 +48,10 @@ private TelKnoten p[] = null;
 	}
 	
 	public static void aufgabe3(){
-		TelNet tel = new TelNet(10);
-		tel.generateRandomTelNet(100, 100, 100);
+		TelNet tel = new TelNet(100);
+		tel.generateRandomTelNet(1000, 1000, 1000);
 		tel.computeOptTelNet();
-		tel.drawOptTelNet(100, 100);
+		tel.drawOptTelNet(1000, 1000);
 		System.out.println(tel);
 		System.out.println("Kosten: "+tel.getOptTelNetKosten());
 	}
@@ -99,11 +99,13 @@ private TelKnoten p[] = null;
 		StdDraw.setXscale(1, xMax+1);
 		StdDraw.setYscale(1, yMax+1);
 		
-		for(int i=1; i<xMax+2; i++){
-			StdDraw.line(i, 1, i, yMax+1);
-		}
-		for(int i=1; i<xMax+2; i++){
-			StdDraw.line(1, i, xMax+1, i);
+		if(xMax < 50 && yMax < 50){
+			for(int i=1; i<xMax+2; i++){
+				StdDraw.line(i, 1, i, yMax+1);
+			}
+			for(int i=1; i<xMax+2; i++){
+				StdDraw.line(1, i, xMax+1, i);
+			}
 		}
 		
 		for(TelKnoten k:graph.getVertexList()){
@@ -112,8 +114,8 @@ private TelKnoten p[] = null;
 			StdDraw.setPenColor(Color.RED);
 			StdDraw.filledCircle(k.x+halfSize, k.y+halfSize, halfSize*3/4);
 		}
-		
-		StdDraw.setPenRadius(halfSize/20);
+
+		StdDraw.setPenRadius(halfSize/(xMax*yMax));
 		for(TelVerbindung v:getOptTelNet()){
 			if(v.v != null){
 				StdDraw.line(v.u.x+halfSize, v.u.y+halfSize, v.v.x+halfSize, v.u.y+halfSize);
@@ -156,7 +158,9 @@ private TelKnoten p[] = null;
 	public int getOptTelNetKosten(){
 		int retVal = 0;
 		for(double x:d){
-			retVal += x;
+			if(x != Integer.MAX_VALUE){
+				retVal += x;
+			}
 		}
 		return retVal;
 	}
@@ -187,18 +191,17 @@ private TelKnoten p[] = null;
 		d[map.get(s)] = 0;  // irgendeinen Startknoten wählen 
 		kl.add(s);
 		while (!kl.isEmpty()) {
-			TelKnoten v = getShortestDistance(kl); //lösche Knoten v aus kl mit d[v] minimal;
-			System.out.println(v);
-			kl.remove(v);
-			baum.add(v);
+			s = getShortestDistance(s,kl); //lösche Knoten v aus kl mit d[v] minimal;
+			kl.remove(s);
+			baum.add(s);
 			for (TelKnoten w :graph.getVertexList()) {
 				if (!baum.contains(w)) {
-					if (d[map.get(w)] == Integer.MAX_VALUE){ // w noch nicht in Kandidatenliste 
+					if (d[map.get(w)] == Integer.MAX_VALUE && getDistance(s, w) <= lbg){ // w noch nicht in Kandidatenliste
 						kl.add(w); 
 					}
-					if ( getDistance(v, w) < d[map.get(w)] ) { // d[w] verbessert sich 
-						p[map.get(w)] = v;
-						d[map.get(w)] = getDistance(v, w); 
+					if ( getDistance(s, w) < d[map.get(w)] ) { // d[w] verbessert sich 
+						p[map.get(w)] = s;
+						d[map.get(w)] = getDistance(s, w); 
 					} 
 				} 
 			} 
@@ -214,12 +217,13 @@ private TelKnoten p[] = null;
 	 * @param kl - Kandidatenliste
 	 * @return TelKnoten
 	 */
-	private TelKnoten getShortestDistance(Queue<TelKnoten> kl){
+	private TelKnoten getShortestDistance(TelKnoten v, Queue<TelKnoten> kl){
 		double shortestDistance = Integer.MAX_VALUE;
 		TelKnoten retVal = null;
 		for(TelKnoten vertex:kl){
-			if(d[map.get(vertex)] < shortestDistance){
-				shortestDistance = d[map.get(vertex)];
+			int distance = getDistance(v, vertex);
+			if(distance < shortestDistance){
+				shortestDistance = distance;
 				retVal = vertex;
 			}
 		}
