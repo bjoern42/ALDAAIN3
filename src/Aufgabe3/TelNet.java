@@ -152,7 +152,8 @@ private TelKnoten p[] = null;
 	}
 	
 	/**
-	 * Liefert die Gesamtkosten eines optimalen Telefonnetzes zurück.
+	 * Liefert die Gesamtkosten eines optimalen Telefonnetzes zurück.<p>
+	 * Nicht verbundene Telefonknoten werden dabei ausgelassen!
 	 * @return Gesamtkosten eines optimalen Telefonnetzes. 
 	 */
 	public int getOptTelNetKosten(){
@@ -191,17 +192,17 @@ private TelKnoten p[] = null;
 		d[map.get(s)] = 0;  // irgendeinen Startknoten wählen 
 		kl.add(s);
 		while (!kl.isEmpty()) {
-			s = getShortestDistance(s,kl); //lösche Knoten v aus kl mit d[v] minimal;
-			kl.remove(s);
-			baum.add(s);
+			TelKnoten v = getShortestDistance(kl); //lösche Knoten v aus kl mit d[v] minimal;
+			kl.remove(v);
+			baum.add(v);
 			for (TelKnoten w :graph.getVertexList()) {
 				if (!baum.contains(w)) {
-					if (d[map.get(w)] == Integer.MAX_VALUE && getDistance(s, w) <= lbg){ // w noch nicht in Kandidatenliste
+					if (d[map.get(w)] == Integer.MAX_VALUE && getDistance(v, w) <= lbg){ // w noch nicht in Kandidatenliste und innerhalb der Leitungsbegrenzung
 						kl.add(w); 
 					}
-					if ( getDistance(s, w) < d[map.get(w)] ) { // d[w] verbessert sich 
-						p[map.get(w)] = s;
-						d[map.get(w)] = getDistance(s, w); 
+					if ( getDistance(v, w) < d[map.get(w)] ) { // d[w] verbessert sich 
+						p[map.get(w)] = v;
+						d[map.get(w)] = getDistance(v, w); 
 					} 
 				} 
 			} 
@@ -217,13 +218,12 @@ private TelKnoten p[] = null;
 	 * @param kl - Kandidatenliste
 	 * @return TelKnoten
 	 */
-	private TelKnoten getShortestDistance(TelKnoten v, Queue<TelKnoten> kl){
+	private TelKnoten getShortestDistance(Queue<TelKnoten> kl){
 		double shortestDistance = Integer.MAX_VALUE;
 		TelKnoten retVal = null;
 		for(TelKnoten vertex:kl){
-			int distance = getDistance(v, vertex);
-			if(distance < shortestDistance){
-				shortestDistance = distance;
+			if(d[map.get(vertex)] < shortestDistance){
+				shortestDistance = d[map.get(vertex)];
 				retVal = vertex;
 			}
 		}
